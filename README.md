@@ -52,7 +52,7 @@ Zéro app à installer sur le téléphone. Utilise `uiautomator2` + commandes AD
 ## Installation
 
 ```bash
-git clone https://github.com/ton-user/android-mcp
+git clone https://github.com/Steph-ux/android-mcp
 cd android-mcp
 pip install -r requirements.txt
 
