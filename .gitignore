@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+
+# Logs & runtime
+*.log
+relay_err.log
+macros.json
+record_*.mp4
+screenshots/
+
+# Secrets
+.env
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Archives & binaires
+*.zip
+*.apk
+*.aab
+
+# Temporaires
+debug_frame.py
+test.py
+*.tmp
+
+# Android build artifacts
+AppCompagnon/build/
+AppCompagnon/.dart_tool/
+AppCompagnon/.flutter-plugins
+AppCompagnon/.flutter-plugins-dependencies
+
+# Tests cache
+.pytest_cache/
+tests/__pycache__/
