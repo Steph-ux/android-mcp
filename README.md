@@ -1,19 +1,19 @@
 # Android MCP
 
-> **Contrôle total d'Android depuis n'importe quel agent IA** — Claude, OpenCode, Windsurf, Cursor…
-> 7 outils MCP catégoriels · viewer 90fps · WiFi ADB · zéro app à installer
+> **Full Android control from any AI agent** — Claude, OpenCode, Windsurf, Cursor…
+> 7 categorical MCP tools · 90fps live viewer · WiFi ADB · zero app to install
 
 ---
 
-## Démo rapide
+## Quick demo
 
 ```python
-android_screen(action="screenshot")                          # capture PNG
-android_screen(action="ocr")                                 # texte visible
+android_screen(action="screenshot")                          # PNG capture
+android_screen(action="ocr")                                 # visible text
 android_interact(action="tap", params={"x": 540, "y": 960}) # tap
-android_interact(action="find", params={"text": "Envoyer"}) # chercher + taper
-android_system(action="battery")                             # batterie
-android_screen(action="viewer")                              # viewer 90fps sur le PC
+android_interact(action="find", params={"text": "Send"})     # find + tap
+android_system(action="battery")                             # battery info
+android_screen(action="viewer")                              # 90fps interactive window on PC
 ```
 
 ---
@@ -21,31 +21,31 @@ android_screen(action="viewer")                              # viewer 90fps sur 
 ## Architecture
 
 ```
-Agent IA (Claude / OpenCode / Windsurf / Cursor…)
+AI Agent (Claude / OpenCode / Windsurf / Cursor…)
         ↓  MCP Protocol (stdio)
-    server.py          ← 7 outils catégoriels
+    server.py          ← 7 categorical tools
         ↓
-    device_manager.py  ← sélection device, multi-device
+    device_manager.py  ← device selection, multi-device
         ↓
     backends/
-        ├── adb_backend.py       ← PRIMARY  : uiautomator2 + ADB direct
-        └── companion_backend.py ← FALLBACK : app Flutter WebSocket
+        ├── adb_backend.py       ← PRIMARY  : uiautomator2 + direct ADB
+        └── companion_backend.py ← FALLBACK : Flutter app WebSocket
         ↓
-    N téléphones Android / émulateurs
+    N Android phones / emulators
 ```
 
-**Backend ADB (principal)** — fonctionne sur tout device en mode développeur.
-Zéro app à installer sur le téléphone. Utilise `uiautomator2` + commandes ADB.
+**ADB backend (primary)** — works on any device with developer mode enabled.
+Nothing to install on the phone. Uses `uiautomator2` + ADB commands.
 
-**Backend Companion (fallback)** — app Flutter optionnelle si ADB n'est pas disponible sur le réseau.
+**Companion backend (fallback)** — optional Flutter app when ADB is unavailable on the network.
 
 ---
 
-## Prérequis
+## Requirements
 
 - **Python 3.10+**
-- **ADB** dans le PATH (`winget install Google.PlatformTools`)
-- **Android** : Mode développeur + Débogage USB (ou WiFi)
+- **ADB** in PATH (`winget install Google.PlatformTools`)
+- **Android**: Developer mode + USB debugging (or WiFi debugging)
 
 ---
 
@@ -56,11 +56,11 @@ git clone https://github.com/Steph-ux/android-mcp
 cd android-mcp
 pip install -r requirements.txt
 
-# Initialiser uiautomator2 (une fois par device)
+# Initialize uiautomator2 (once per device)
 python -m uiautomator2 init
 ```
 
-### Viewer live 90fps (optionnel)
+### Live viewer 90fps (optional)
 
 ```bash
 winget install Genymobile.scrcpy
@@ -69,25 +69,25 @@ python viewer.py
 
 ---
 
-## Configuration MCP
+## MCP Configuration
 
 ```bash
-# Génère le bon JSON pour ton client IA
+# Generate the correct JSON for your AI client
 python mcp_config.py --client claude     # Claude Desktop
 python mcp_config.py --client opencode  # OpenCode
 python mcp_config.py --client windsurf  # Windsurf
 python mcp_config.py --client cursor    # Cursor
-python mcp_config.py --write            # écrire directement dans les fichiers
+python mcp_config.py --write            # write directly to config files
 ```
 
-Exemple Claude Desktop (`claude_desktop_config.json`) :
+Claude Desktop example (`claude_desktop_config.json`):
 
 ```json
 {
   "mcpServers": {
     "android-mcp": {
       "command": "C:/Python312/python.exe",
-      "args": ["D:/chemin/vers/android-mcp/server.py"],
+      "args": ["D:/path/to/android-mcp/server.py"],
       "type": "stdio"
     }
   }
@@ -96,36 +96,36 @@ Exemple Claude Desktop (`claude_desktop_config.json`) :
 
 ---
 
-## Connexion WiFi sans câble (Android 11+)
+## WiFi connection without USB (Android 11+)
 
 ```bash
-# Sur le téléphone : Paramètres → Options dev → Débogage sans fil → Associer
-adb pair 192.168.1.42:38765    # code affiché sur le téléphone
+# On the phone: Settings → Developer options → Wireless debugging → Pair device
+adb pair 192.168.1.42:38765    # enter the code shown on the phone
 adb connect 192.168.1.42:5555
 ```
 
-Guide complet → [WIFI_PAIRING.md](WIFI_PAIRING.md)
+Full guide → [WIFI_PAIRING.md](WIFI_PAIRING.md)
 
 ---
 
-## Les 7 outils MCP
+## The 7 MCP tools
 
-Convention d'appel : `android_xxx(action="...", params={...}, device_id="serial")`
-Le `device_id` est toujours optionnel (utilise le device sélectionné par défaut).
+Call convention: `android_xxx(action="...", params={...}, device_id="serial")`
+`device_id` is always optional (uses the currently selected device).
 
 ---
 
-### `android_device` — Gestion des devices
+### `android_device` — Device management
 
 | Action | Params | Description |
 |--------|--------|-------------|
-| `list` | — | Tous les devices connectés (USB, WiFi, émulateurs) |
-| `select` | `serial` | Sélectionne le device par défaut |
-| `connect` | `host`, `port` | Connexion WiFi ADB |
-| `disconnect` | — | Déconnecte le device WiFi actuel |
-| `info` | — | Modèle, OS, résolution, densité |
-| `status` | — | Device connecté et prêt ? |
-| `setup` | — | Configure animations, stay-awake, ATX |
+| `list` | — | All connected devices (USB, WiFi, emulators) |
+| `select` | `serial` | Set default device |
+| `connect` | `host`, `port` | WiFi ADB connection |
+| `disconnect` | — | Disconnect current WiFi device |
+| `info` | — | Model, OS, resolution, density |
+| `status` | — | Is device connected and ready? |
+| `setup` | — | Configure animations, stay-awake, ATX agent |
 
 ---
 
@@ -133,41 +133,41 @@ Le `device_id` est toujours optionnel (utilise le device sélectionné par défa
 
 | Action | Params | Description |
 |--------|--------|-------------|
-| `screenshot` | — | Capture PNG (bypass FLAG_SECURE) → image |
-| `region` | `x y width height` | Capture d'une zone → image |
+| `screenshot` | — | PNG capture (bypasses FLAG_SECURE) → image |
+| `region` | `x y width height` | Capture a specific area → image |
 | `size` | — | `{width, height}` |
-| `is_on` | — | Écran allumé ? |
-| `wake` | — | Allume l'écran |
-| `start_stream` | — | Stream ADB (~16fps) |
-| `stop_stream` | — | Arrête le stream |
-| `live_frame` | — | Dernier frame → image |
-| `ocr` | `lang` | Texte visible (Tesseract) |
-| `find_image` | `template_b64 threshold` | Template matching OpenCV |
-| `viewer` | `fps bitrate no_control` | Lance scrcpy 90fps sur le PC |
+| `is_on` | — | Is the screen on? |
+| `wake` | — | Wake the screen |
+| `start_stream` | — | Start ADB stream (~16fps) |
+| `stop_stream` | — | Stop stream |
+| `live_frame` | — | Latest stream frame → image |
+| `ocr` | `lang` | Extract visible text (Tesseract) |
+| `find_image` | `template_b64 threshold` | Template matching (OpenCV) |
+| `viewer` | `fps bitrate no_control` | Launch scrcpy 90fps window on PC |
 
 ---
 
-### `android_interact` — Touch, Clavier, UI
+### `android_interact` — Touch, Keyboard, UI
 
 | Action | Params | Description |
 |--------|--------|-------------|
 | `tap` | `x y` | Tap |
 | `double_tap` | `x y` | Double tap |
-| `long_press` | `x y duration_ms` | Appui long |
+| `long_press` | `x y duration_ms` | Long press |
 | `swipe` | `x1 y1 x2 y2 duration_ms` | Swipe |
 | `drag` | `x1 y1 x2 y2 duration_ms` | Drag & drop |
 | `pinch` | `x y scale duration_ms` | Pinch zoom |
-| `multi_touch` | `points` | Gestes multi-doigts |
-| `type` | `text` | Saisie de texte |
-| `clear` | — | Efface le champ actif |
-| `submit` | `text` | Saisit + Entrée |
-| `key` | `key` | HOME, BACK, ENTER, VOLUME_UP… |
-| `combo` | `keys` | Combinaison de keycodes |
-| `hierarchy` | — | XML complet de l'UI |
-| `find` | `text partial_match` | Cherche et tape un élément |
-| `wait` | `text timeout partial_match` | Attend un élément |
-| `scroll` | `text direction max_swipes` | Scrolle vers un élément |
-| `assert` | `text partial_match` | Vérifie qu'un texte est visible |
+| `multi_touch` | `points` | Multi-finger gestures |
+| `type` | `text` | Type text |
+| `clear` | — | Clear active field |
+| `submit` | `text` | Type + Enter |
+| `key` | `key` | System key (HOME, BACK, ENTER, VOLUME_UP…) |
+| `combo` | `keys` | Key combination (keycodes) |
+| `hierarchy` | — | Full UI XML tree (uiautomator2) |
+| `find` | `text partial_match` | Find element and tap it |
+| `wait` | `text timeout partial_match` | Wait for element |
+| `scroll` | `text direction max_swipes` | Scroll to element |
+| `assert` | `text partial_match` | Assert text is visible |
 
 ---
 
@@ -175,51 +175,51 @@ Le `device_id` est toujours optionnel (utilise le device sélectionné par défa
 
 | Action | Params | Description |
 |--------|--------|-------------|
-| `launch` | `package` | Lance une app |
-| `close` | `package` | Force-stop |
-| `list` | `include_system` | Apps installées |
-| `install` | `apk_path` | Installe un APK depuis le PC |
-| `uninstall` | `package` | Désinstalle |
-| `current` | — | App au premier plan |
-| `url` | `url` | Ouvre une URL |
-| `intent` | `action uri package extras` | Intent Android |
-| `settings` | `section` | Paramètres (`main wifi bluetooth display…`) |
+| `launch` | `package` | Launch an app |
+| `close` | `package` | Force-stop an app |
+| `list` | `include_system` | List installed apps |
+| `install` | `apk_path` | Install APK from PC |
+| `uninstall` | `package` | Uninstall app |
+| `current` | — | Foreground app package |
+| `url` | `url` | Open a URL |
+| `intent` | `action uri package extras` | Send Android intent |
+| `settings` | `section` | Open system settings (`main wifi bluetooth display…`) |
 
 ---
 
-### `android_files` — Fichiers
+### `android_files` — Files
 
 | Action | Params | Description |
 |--------|--------|-------------|
-| `push` | `local_path remote_path` | PC → téléphone |
-| `push_b64` | `remote_path data` | Base64 → téléphone |
-| `pull` | `remote_path local_path` | Téléphone → PC |
-| `pull_b64` | `remote_path` | Téléphone → base64 |
-| `list` | `directory` | Contenu d'un dossier |
+| `push` | `local_path remote_path` | PC → phone |
+| `push_b64` | `remote_path data` | Base64 → phone |
+| `pull` | `remote_path local_path` | Phone → PC |
+| `pull_b64` | `remote_path` | Phone → base64 |
+| `list` | `directory` | List directory contents |
 
 ---
 
-### `android_system` — Système & Réseau
+### `android_system` — System & Network
 
 | Action | Params | Description |
 |--------|--------|-------------|
-| `shell` | `command` | Shell ADB |
+| `shell` | `command` | ADB shell command |
 | `logs` | `lines package` | Logcat |
-| `battery` | — | Niveau et état de charge |
-| `clipboard_get` | — | Lit le presse-papier |
-| `clipboard_set` | `text` | Écrit dans le presse-papier |
-| `volume` | `level stream` | Volume |
-| `rotation` | `rotation` | Rotation écran (0-3) |
+| `battery` | — | Battery level and charging state |
+| `clipboard_get` | — | Read clipboard |
+| `clipboard_set` | `text` | Write to clipboard |
+| `volume` | `level stream` | Set volume |
+| `rotation` | `rotation` | Screen rotation (0-3) |
 | `wifi` | `enabled` | WiFi on/off |
 | `bluetooth` | `enabled` | Bluetooth on/off |
-| `mobile_data` | `enabled` | Data mobile on/off |
-| `notifications` | — | Notifications actives |
-| `gps` | `lat lng` | GPS fictif |
-| `sensors` | `sensor` | Accéléro, gyro, lumière… |
-| `wifi_list` | — | Réseaux WiFi disponibles |
-| `wifi_connect` | `ssid password` | Connexion WiFi |
-| `contacts` | `search limit` | Contacts |
-| `sms` | `to message` | SMS (confirmation sur le téléphone) |
+| `mobile_data` | `enabled` | Mobile data on/off |
+| `notifications` | — | Active notifications |
+| `gps` | `lat lng` | Mock GPS location |
+| `sensors` | `sensor` | Accelerometer, gyro, light… |
+| `wifi_list` | — | Available WiFi networks |
+| `wifi_connect` | `ssid password` | Connect to WiFi |
+| `contacts` | `search limit` | Read contacts |
+| `sms` | `to message` | Send SMS (requires confirmation on phone) |
 
 ---
 
@@ -227,35 +227,35 @@ Le `device_id` est toujours optionnel (utilise le device sélectionné par défa
 
 | Action | Params | Description |
 |--------|--------|-------------|
-| `batch` | `actions stop_on_error` | N actions en un appel |
-| `macro_start` | `name` | Démarre l'enregistrement |
-| `macro_record` | `action …params` | Ajoute une action |
-| `macro_stop` | — | Sauvegarde |
-| `macro_list` | — | Liste les macros |
-| `macro_replay` | `name delay_ms` | Rejoue |
-| `macro_delete` | `name` | Supprime |
+| `batch` | `actions stop_on_error` | Run N actions in one call |
+| `macro_start` | `name` | Start recording a macro |
+| `macro_record` | `action …params` | Add action to macro |
+| `macro_stop` | — | Save macro |
+| `macro_list` | — | List saved macros |
+| `macro_replay` | `name delay_ms` | Replay a macro |
+| `macro_delete` | `name` | Delete a macro |
 
 ---
 
-## Viewer live — scrcpy 90fps
+## Live viewer — scrcpy 90fps
 
 ```bash
-python viewer.py                  # device auto-détecté, 90fps, interactif
+python viewer.py                  # auto-detect device, 90fps, interactive
 python viewer.py --fps 60         # 60fps
-python viewer.py --record         # enregistre en .mp4
-python viewer.py --record out.mp4 # fichier nommé
-python viewer.py --multi          # un viewer par device connecté
-python viewer.py --no-control     # lecture seule
+python viewer.py --record         # record to .mp4
+python viewer.py --record out.mp4 # named output file
+python viewer.py --multi          # one viewer per connected device
+python viewer.py --no-control     # read-only mode
 ```
 
-| Contrôle | Action |
-|----------|--------|
-| Clic gauche | Tap |
-| Glisser | Swipe |
-| Clic droit | BACK |
+| Control | Action |
+|---------|--------|
+| Left click | Tap |
+| Drag | Swipe |
+| Right click | BACK |
 | Scroll | Scroll |
 | `Alt+H` | HOME |
-| `Alt+S` | Screenshot → clipboard PC |
+| `Alt+S` | Screenshot → PC clipboard |
 | `Alt+F` | Fullscreen |
 | `Alt+R` | Rotation |
 
@@ -264,60 +264,59 @@ python viewer.py --no-control     # lecture seule
 ## Tests
 
 ```bash
-# Unitaires (aucun device requis)
+# Unit tests (no device required)
 pytest tests/test_server_unit.py -v      # 94 tests
 
-# Intégration (device ADB requis)
+# Integration tests (ADB device required)
 pytest tests/test_integration.py -v
 ```
 
 ---
 
-## Structure du projet
+## Project structure
 
 ```
 android-mcp/
-├── server.py              # Serveur MCP — 7 outils
-├── viewer.py              # Viewer scrcpy 90fps interactif
-├── mcp_config.py          # Générateur de config JSON
-├── device_manager.py      # Gestion multi-device
-├── relay.py               # ⚠️ LEGACY — companion fallback uniquement
+├── server.py              # MCP server — 7 tools
+├── viewer.py              # scrcpy 90fps interactive viewer
+├── mcp_config.py          # JSON config generator
+├── device_manager.py      # Multi-device management
+├── relay.py               # ⚠️ LEGACY — companion fallback only
 ├── requirements.txt
 ├── pyproject.toml
 ├── WIFI_PAIRING.md
 ├── backends/
-│   ├── adb_backend.py
-│   └── companion_backend.py
-├── AppCompagnon/          # App Flutter (ARCHIVED — fallback)
+│   ├── adb_backend.py     # Primary backend (uiautomator2 + ADB)
+│   └── companion_backend.py  # Fallback backend (Flutter app)
 ├── examples/
-│   ├── agent_loop.py      # Automatisation autonome
-│   └── whatsapp_auto.py   # Exemple WhatsApp
+│   ├── agent_loop.py      # Autonomous automation loop
+│   └── whatsapp_auto.py   # WhatsApp automation example
 └── tests/
     ├── conftest.py
-    ├── test_server_unit.py   # 94 tests unitaires
-    └── test_integration.py
+    ├── test_server_unit.py   # 94 unit tests
+    └── test_integration.py   # Real device tests
 ```
 
 ---
 
-## Exemples
+## Examples
 
 ```python
-# WhatsApp — envoyer un message
+# WhatsApp — send a message
 await android_app("launch", {"package": "com.whatsapp"})
 await android_interact("find", {"text": "Alice"})
-await android_interact("type", {"text": "Bonjour !"})
+await android_interact("type", {"text": "Hello!"})
 await android_interact("key",  {"key": "ENTER"})
 
-# Batch en un seul appel
+# Batch in a single call
 await android_automation("batch", {"actions": [
     {"action": "key",  "key": "HOME"},
     {"action": "tap",  "x": 540, "y": 200},
-    {"action": "type", "text": "recherche"},
+    {"action": "type", "text": "search query"},
     {"action": "key",  "key": "ENTER"},
 ]})
 
-# Macro : enregistrer + rejouer
+# Macro: record + replay
 await android_automation("macro_start",  {"name": "login"})
 await android_automation("macro_record", {"action": "tap",  "x": 540, "y": 400})
 await android_automation("macro_record", {"action": "type", "text": "password"})
@@ -325,10 +324,10 @@ await android_automation("macro_stop")
 await android_automation("macro_replay", {"name": "login"})
 ```
 
-Voir `examples/whatsapp_auto.py` et `examples/agent_loop.py` pour des cas complets.
+See `examples/whatsapp_auto.py` and `examples/agent_loop.py` for full use cases.
 
 ---
 
-## Licence
+## License
 
 MIT
