@@ -45,9 +45,9 @@ android-mcp-config = "mcp_config:main"
 android-mcp-viewer = "viewer:main"
 
 [project.urls]
-Homepage   = "https://github.com/ton-user/android-mcp"
-Repository = "https://github.com/ton-user/android-mcp"
-Issues     = "https://github.com/ton-user/android-mcp/issues"
+Homepage   = "https://github.com/Steph-ux/android-mcp"
+Repository = "https://github.com/Steph-ux/android-mcp"
+Issues     = "https://github.com/Steph-ux/android-mcp/issues"
 
 [tool.setuptools.packages.find]
 where   = ["."]
