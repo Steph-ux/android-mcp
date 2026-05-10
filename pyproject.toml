@@ -1,11 +1,11 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
-name = "android-mcp"
+name = "android-mcp-adb"
 version = "2.0.0"
-description = "Contrôle total d'Android depuis n'importe quel agent IA via MCP"
+description = "Full Android control from any AI agent via MCP — 7 tools, 90fps viewer, WiFi ADB"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
@@ -43,6 +43,7 @@ dev = [
 android-mcp        = "server:main"
 android-mcp-config = "mcp_config:main"
 android-mcp-viewer = "viewer:main"
+android-mcp-adb    = "server:main"
 
 [project.urls]
 Homepage   = "https://github.com/Steph-ux/android-mcp"
